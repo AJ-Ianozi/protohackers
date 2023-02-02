@@ -1,0 +1,11 @@
+name = "smoke_test"
+description = "Shiny new project"
+version = "0.1.0-dev"
+
+authors = ["AJ Ianozi"]
+maintainers = ["AJ Ianozi <aj@ianozi.com>"]
+maintainers-logins = ["aj-ianozi"]
+
+executables = ["smoke_test"]
+[[depends-on]]
+simple_components = "^4.62.0"

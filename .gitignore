@@ -1,0 +1,14 @@
+/obj/
+/bin/
+/alire/
+/config/
+*~
+.fuse_hidden*
+.directory
+.Trash-*
+.nfs*
+*.cab
+*.msi
+*.msix
+*.msm
+*.msp
