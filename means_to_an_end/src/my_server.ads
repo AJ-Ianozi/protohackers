@@ -17,58 +17,48 @@
 
 with Ada.Containers.Ordered_Sets;
 
-with Ada.Exceptions;       use Ada.Exceptions;
-with Ada.Streams;          use Ada.Streams;
-with Interfaces;           use Interfaces;
-with GNAT.Sockets;         use GNAT.Sockets;
-with GNAT.Sockets.Server;  use GNAT.Sockets.Server;
+with Interfaces;          use Interfaces;
+with GNAT.Sockets;        use GNAT.Sockets;
+with GNAT.Sockets.Server; use GNAT.Sockets.Server;
 
+--  For the protocol
 with GNAT.Sockets.Connection_State_Machine.Big_Endian.Integers;
 with GNAT.Sockets.Connection_State_Machine.Big_Endian.Unsigneds;
-with GNAT.Sockets.Connection_State_Machine.Terminated_Strings;
-use  GNAT.Sockets.Connection_State_Machine.Big_Endian.Integers;
-
 
 package My_Server is
    Invalid_Connection : exception;
    use GNAT.Sockets.Connection_State_Machine;
 
    type Server_Factory is new Connections_Factory with private;
-   function Create
-            (  Factory  : access Server_Factory;
-               Listener : access Connections_Server'Class;
-               From     : Sock_Addr_Type
-            )  return Connection_Ptr;
-   procedure Trace
-             (  Factory    : in out Server_Factory;
-                Context    : String;
-                Occurrence : Exception_Occurrence
-             );
-
    type Server_Connection is new Connection with private;
-   procedure Finalize (Client : in out Server_Connection);
 
-   procedure Process_Packet (Client : in out Server_Connection);
+   overriding function Create
+     (Factory  : access Server_Factory;
+      Listener : access Connections_Server'Class; From : Sock_Addr_Type)
+      return Connection_Ptr;
 
-   procedure Sent (Client : in out Server_Connection);
+   overriding procedure Finalize (Client : in out Server_Connection);
+
+   overriding procedure Process_Packet (Client : in out Server_Connection);
+
+   overriding procedure Sent (Client : in out Server_Connection);
 
 private
 
-   type Server_Factory is new Connections_Factory with null record;
-
    type Query_Entry is record
       Timestamp : Integer_32;
-      Price : Integer_32 := 0;
+      Price     : Integer_32 := 0;
    end record;
 
    function "<" (Left, Right : Query_Entry) return Boolean;
    overriding function "=" (Left, Right : Query_Entry) return Boolean;
-
+   --  Our set of queries.
    package Query_Entries is new Ada.Containers.Ordered_Sets (Query_Entry);
 
+   type Server_Factory is new Connections_Factory with null record;
    type Server_Connection is new State_Machine with record
-      From      : Sock_Addr_Type;
-      Active    : Boolean := True;
+      From   : Sock_Addr_Type;
+      Active : Boolean := True;
 
       --  Our ordered set.
       Query_List : Query_Entries.Set;

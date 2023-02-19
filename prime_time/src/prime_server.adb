@@ -28,11 +28,12 @@ with JSON.Types;
 
 package body Prime_Server is
 
-   function Create
-            (  Factory  : access Prime_Factory;
-               Listener : access Connections_Server'Class;
-               From     : Sock_Addr_Type
-            )  return Connection_Ptr is
+   overriding function Create
+            (Factory  : access Prime_Factory;
+             Listener : access Connections_Server'Class;
+             From     : Sock_Addr_Type
+            ) return Connection_Ptr
+   is
       Result : Connection_Ptr;
    begin
       Put_Line ("Connected client at " & Image (From));
@@ -41,36 +42,37 @@ package body Prime_Server is
       return Result;
    end Create;
 
-   procedure Finalize (Client : in out Prime_Connection) is
+   overriding procedure Finalize (Client : in out Prime_Connection) is
    begin
       Put_Line ("Disconnected client " & Image (Client.From));
       Finalize (Connection (Client));
    end Finalize;
 
-   procedure Received
-             (  Client  : in out Prime_Connection;
-                Data    : Stream_Element_Array;
-                Pointer : in out Stream_Element_Offset
-             )  is
+   overriding procedure Received
+             (Client  : in out Prime_Connection;
+              Data    : Stream_Element_Array;
+              Pointer : in out Stream_Element_Offset
+             )
+   is
       function As_String return String is
          Result : constant String (1 .. Data'Length) :=
             [for X of Data => Character'Val (X)];
       begin
          return Result;
       end As_String;
-      Malformed : Exception;
+      Malformed : exception;
       package Types is new JSON.Types (Long_Integer, Long_Float);
       package Parsers is new JSON.Parsers (Types);
       --  Index or find to character(10) into the ubound string.
       --  Be sure to pass the pointer to it once I find a stop.
    begin
-      Put_Line(" Received `" & As_String & "`");
+      Put_Line (" Received `" & As_String & "`");
       --  Go through each character, moving it into the buffer.
       for X in Data'Range loop
          --  Set pointer to the next item to process.
          Pointer := X;
          --  Add the next character to the string.
-         Append(Client.Json_Str, Character'Val (Data (X)));
+         Append (Client.Json_Str, Character'Val (Data (X)));
          --  Exit the loop prematurely if we've reached the end.
          exit when Character'Val (Data (X)) = Character'Val (10);
       end loop;
@@ -79,15 +81,16 @@ package body Prime_Server is
 
       --  If we received a full json object
       if
-         Element(Client.Json_Str, Length (Client.Json_Str)) = Character'Val (10)
+         Element (Client.Json_Str, Length (Client.Json_Str)) =
+         Character'Val (10)
       then
          declare
             --  This is just to catch the parse error exception
          begin
             --  Process the json object.
             declare
-               Parser : Parsers.Parser := Parsers.Create ( To_String
-                                                            (Client.Json_Str));
+               Parser : Parsers.Parser :=
+                                 Parsers.Create (To_String (Client.Json_Str));
                Item : constant Types.JSON_Value := Parser.Parse;
                use Types;
             begin
@@ -118,11 +121,11 @@ package body Prime_Server is
                               "{""method"":""isPrime"",""prime"":true}"
                             else
                               "{""method"":""isPrime"",""prime"":false}")
-                           & Character'Val(10);
+                           & Character'Val (10);
                         Ptr : Integer := 0;
                      begin
                         --  Send result
-                        Send(Client, Result, Ptr);
+                        Send (Client, Result, Ptr);
                      end;
                   end;
                else
@@ -134,38 +137,45 @@ package body Prime_Server is
                --  This was added on in the last minute when they tried to test
                --  if a giant integer was prime or not, and json-ada does not
                --  support big ints.
-               if Element(Client.Json_Str, 1) = '{' and then
-                  (Element(Client.Json_Str, Length(Client.Json_Str)-1) = '}' or
-                   Element(Client.Json_Str,
-                           Length(Client.Json_Str)-2) = '}' ) and then
-                  Index(Client.Json_Str, """method"":""isPrime""") > 0 and then
-                  Index(Client.Json_Str, """number"":") > 0
+               if Element (Client.Json_Str, 1) = '{'
+                  and then
+                     (Element
+                      (Client.Json_Str, Length (Client.Json_Str) - 1) = '}'
+                     or else
+                       Element
+                        (Client.Json_Str, Length (Client.Json_Str) - 2) = '}')
+                  and then Index
+                              (Client.Json_Str, """method"":""isPrime""") > 0
+                  and then Index (Client.Json_Str, """number"":") > 0
                then
                   declare
                      Check_Set : constant Character_Set :=
-                                                      To_Set (Sequence => ",}");
-                     Number_Start : constant Natural := Index(Client.Json_Str,
-                                                               """number"":");
+                                             To_Set (Sequence => ",}");
+                     Number_Start : constant Natural :=
+                                                Index
+                                                   (Client.Json_Str,
+                                                     """number"":");
                      Sub_String : constant String :=
-                                                Slice(Client.Json_Str,
-                                                      Number_Start+9,
-                                                      Length(Client.Json_Str));
+                                             Slice (Client.Json_Str,
+                                                   Number_Start + 9,
+                                                   Length (Client.Json_Str));
                      EntryString : constant String :=
-                                                Sub_String(Sub_String'First ..
-                                                            Index(Sub_String,
-                                                                  Check_Set)-1);
+                                             Sub_String
+                                               (Sub_String'First ..
+                                                 Index
+                                                  (Sub_String, Check_Set) - 1);
                      Our_Big_Int : constant Big_Integer :=
-                                                      From_String(EntryString);
+                                                   From_String (EntryString);
                      Result : constant String :=
-                           (if Is_Prime(Our_Big_Int) then
+                           (if Is_Prime (Our_Big_Int) then
                               "{""method"":""isPrime"",""prime"":true}"
                             else
                               "{""method"":""isPrime"",""prime"":false}")
-                           & Character'Val(10);
+                           & Character'Val (10);
                         Ptr : Integer := 0;
                   begin
-                      Put_Line("Sending: `" & Result & "`");
-                     Send(Client, Result, Ptr);
+                     Put_Line ("Sending: `" & Result & "`");
+                     Send (Client, Result, Ptr);
                   end;
                else
                   raise Malformed;
@@ -177,26 +187,17 @@ package body Prime_Server is
    exception
       when others =>
          declare
-            Err : constant String := "malformed" & Character'Val(10);
+            Err : constant String := "malformed" & Character'Val (10);
             Ptr : Integer := Err'First;
          begin
-            Put_Line("THIS WAS MALFORMED - `" &
-                     To_String(Client.Json_Str) & "`");
-            Send(Client, Err, Ptr);
+            Put_Line ("THIS WAS MALFORMED - `" &
+                     To_String (Client.Json_Str) & "`");
+            Send (Client, Err, Ptr);
             Client.Active := False;
          end;
    end Received;
 
-   procedure Trace
-             (  Factory    : in out Prime_Factory;
-                Context    : String;
-                Occurrence : Exception_Occurrence
-             )  is
-   begin
-      Put_Line (Context & ':' & Exception_Information (Occurrence));
-   end Trace;
-
-   procedure Sent (Client : in out Prime_Connection) is
+   overriding procedure Sent (Client : in out Prime_Connection) is
    begin
       --  If client was deactivated, shut down after latest send.
       if not Client.Active then

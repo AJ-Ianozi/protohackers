@@ -22,11 +22,11 @@ package Prime_Checker is
    --  Must be called first.
    procedure Init_Primes;
    --  For calculating if a number is prime.
-   function Is_Prime(I : Big_Integer) return Boolean;
-   function Is_Prime(I : Long_Integer) return Boolean;
-   function Is_Prime(I : Long_Float) return Boolean;
+   function Is_Prime (I : Big_Integer)  return Boolean;
+   function Is_Prime (I : Long_Integer) return Boolean;
+   function Is_Prime (I : Long_Float)   return Boolean;
 private
-   package Convert is new Signed_Conversions(Long_Integer);
+   package Convert is new Signed_Conversions (Long_Integer);
    Prime_Array : array (Long_Integer range 2 .. 179424673) of Boolean :=
                                                             [others => False];
 end Prime_Checker;

@@ -29,15 +29,15 @@ begin
       Factory : aliased Server_Factory;
       Server  : Connections_Server (Factory'Access, Port);
    begin
-      Put_Line ("Echo server started.  Type ""exit"" to quit.");
+      Put_Line ("DB server started.  Type ""exit"" to quit.");
       while not Shutting_Down loop
          declare
             Command : constant String := Get_Line;
          begin
-            if To_Lower(Command) = "exit" then
+            if To_Lower (Command) = "exit" then
                Shutting_Down := True;
             else
-               Put_Line("Unkown command: " & Command);
+               Put_Line ("Unkown command: " & Command);
             end if;
          end;
       end loop;

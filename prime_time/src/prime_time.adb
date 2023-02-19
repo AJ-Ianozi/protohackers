@@ -22,23 +22,23 @@ with Ada.Characters.Handling; use Ada.Characters.Handling;
 with Prime_Server;            use Prime_Server;
 with Prime_Checker;           use Prime_Checker;
 procedure Prime_Time is
-   Port          : constant := 5876;
-   Shutting_Down : Boolean := False;
+   Port          : constant := 5_876;
+   Shutting_Down : Boolean  := False;
 begin
    Init_Primes;
    declare
       Factory : aliased Prime_Factory;
       Server  : Connections_Server (Factory'Access, Port);
    begin
-      Put_Line ("Echo server started.  Type ""exit"" to quit.");
+      Put_Line ("Prime server started.  Type ""exit"" to quit.");
       while not Shutting_Down loop
          declare
             Command : constant String := Get_Line;
          begin
-            if To_Lower(Command) = "exit" then
+            if To_Lower (Command) = "exit" then
                Shutting_Down := True;
             else
-               Put_Line("Unkown command: " & Command);
+               Put_Line ("Unkown command: " & Command);
             end if;
          end;
       end loop;
