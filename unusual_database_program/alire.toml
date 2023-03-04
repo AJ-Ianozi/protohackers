@@ -1,0 +1,12 @@
+name = "unusual_database_program"
+description = "Shiny new project"
+version = "0.1.0-dev"
+
+authors = ["AJ Ianozi"]
+maintainers = ["AJ Ianozi <aj@ianozi.com>"]
+maintainers-logins = ["aj-ianozi"]
+
+executables = ["unusual_database_program"]
+
+[build-switches]
+"*".Ada_Version = "Ada2022"

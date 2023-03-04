@@ -41,7 +41,7 @@ begin
             end if;
          end;
       end loop;
-      Put_Line ("Echo server stopping");
+      Put_Line ("DB server stopping");
    end;
 exception
    when Error : others =>

@@ -72,7 +72,7 @@ begin
                end if;
             end;
          end loop;
-         Put_Line ("Echo server stopping");
+         Put_Line ("Chat server stopping");
       end;
    end;
 exception

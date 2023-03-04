@@ -216,7 +216,7 @@ package body My_Server is
             end if;
          end;
       end if;
-      Put_Line ("Sent messages to " & Sent_Messages'Image & " users");
+      -- Put_Line ("Sent messages to " & Sent_Messages'Image & " users");
    exception
       when Constraint_Error | Invalid_Username =>
             Send (Client, "Invalid username.  Disconnecting :)....", Sent);

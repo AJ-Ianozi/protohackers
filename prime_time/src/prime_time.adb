@@ -42,7 +42,7 @@ begin
             end if;
          end;
       end loop;
-      Put_Line ("Echo server stopping");
+      Put_Line ("Prime server stopping");
    end;
 exception
    when Error : others =>
