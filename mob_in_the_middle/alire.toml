@@ -1,0 +1,14 @@
+name = "mob_in_the_middle"
+description = "Shiny new project"
+version = "0.1.0-dev"
+
+authors = ["AJ Ianozi"]
+maintainers = ["AJ Ianozi <aj@ianozi.com>"]
+maintainers-logins = ["aj-ianozi"]
+
+executables = ["mob_in_the_middle"]
+
+[build-switches]
+"*".Ada_Version = "Ada2022"
+[[depends-on]]
+simple_components = "^4.62.0"
