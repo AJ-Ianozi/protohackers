@@ -14,6 +14,7 @@
 --
 --    You should have received a copy of the GNU General Public License
 --    along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
 with Ada.Exceptions;          use Ada.Exceptions;
 with Ada.Text_IO;             use Ada.Text_IO;
 with GNAT.Sockets.Server;     use GNAT.Sockets.Server;
